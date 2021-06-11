@@ -1,9 +1,9 @@
 const routeFunctions = require('./src/functions.js');
-
 const mdLinks = () => {
-  routeFunctions.readFileMd();
-  routeFunctions.extMd();
-  routeFunctions.getLinks();
+  routeFunctions.readFileMd()
+  .then(routeFunctions.getLinks)
+  .then(routeFunctions.extMd);
   routeFunctions.routeAbsolute();
 }
+
 mdLinks();

@@ -10,9 +10,6 @@ const readFileMd = () => {
         fs.readFile(file, 'utf8', (err, data) => {
             resolve(data);
             reject(err);
-
-
-
         });
     })
 }
@@ -53,6 +50,7 @@ const extMd = () => {
 const routeAbsolute = () => {
     const absolute = path.isAbsolute(file)
     ? file : path.resolve(file)
+    return absolute;
 }
 
 module.exports = {
