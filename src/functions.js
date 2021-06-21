@@ -2,21 +2,29 @@ const path = require('path');
 const fs = require('fs');
 const expectedLink = /https?:\S+\w/g;
 const text = /\[(.*?)\]/gm;
-let file = './README.md';
+const fetch = require('node-fetch');
+const { resolve } = require('path');
+
+
+/* validate file .md */
+const extMd = (file) => {
+    if (path.extname(file) === '.md') {
+        console.log('the file is .md');
+    } else {
+        console.log('it is not an .md file');
+    }
+}
 
 /* Read file */
-const readFileMd = () => {
+const readFileMd = (path) => {
     return new Promise((resolve, reject) => {
-        fs.readFile(file, 'utf8', (err, data) => {
+        fs.readFile(path, 'utf8', (err, data) => {
             resolve(data);
             reject(err);
         });
-    })
+    });
 }
-
-/* get links */
-const getLinks = () => {
-    fs.readFile(file, 'utf8', (err, data) => {
+const getLinks = (data, path, validate) => {
     const links = data.match(expectedLink);
     const texts = data.matchAll(text);
     const arrayLinks = [];
@@ -24,35 +32,51 @@ const getLinks = () => {
     links.forEach((link) => {
         let foundText = texts.next()
         const foundLink = link;
-        const objLink = {
-            file: file,
+        const object = {
+            file: path,
             href: foundLink,
-            text: foundText.value[1]
+            text: foundText.value[1],
         }
-        arrayLinks.push(objLink)
+        const objLinkPromise = new Promise((resolve) => {
+            resolve(object)
+        })
+        if (validate === false) {
+            arrayLinks.push(objLinkPromise)
+        } else {
+            arrayLinks.push(statusLinks(object))
+        }
     })
-    console.log(arrayLinks);
-}) 
+    return arrayLinks;
 }
 
-/* validate file .md */
-const extMd = () => {
-    return new Promise((resolve, reject) => {
-        if (path.extname(file) === '.md') {
-            resolve(console.log('the file is .md'));
-        } else {
-            reject(console.log('it is not an .md file'));
-        }
-    })
+const statusLinks = (object) => {
+    return fetch(object.href)
+        .then((response) => {
+            if (response.status === 200) {
+                return { ...object, status: 'ok', code: `${response.status}` }
+            } else {
+                return { ...object, status: 'fail', code: `${response.status}` }
+            }
+        })
+        .catch((error) => {
+
+        })
 }
+
 
 /* Route file absolute */
-const routeAbsolute = () => {
-    const absolute = path.isAbsolute(file)
-    ? file : path.resolve(file)
+const routeAbsolute = (data) => {
+    const absolute = path.isAbsolute(data)
+        ? path : path.resolve(data)
     return absolute;
-}
+};
+
+
+
 
 module.exports = {
-    readFileMd, extMd, getLinks, routeAbsolute
+    readFileMd,
+    extMd,
+    routeAbsolute,
+    getLinks
 }
