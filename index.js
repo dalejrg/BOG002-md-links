@@ -1,16 +1,10 @@
 const routeFunctions = require('./src/functions.js');
-const path = './README.md';
 
 const mdLinks = (route, validate = false) => {
-  routeFunctions.extMd(path)
-  routeFunctions.routeAbsolute(path)
-  return routeFunctions.readFileMd(route)
-    .then((data) => {
-      return Promise.all(routeFunctions.getLinks(data, path, validate))
-    })
-    .then(console.log)
-    .catch(error => error)
-
+  return routeFunctions.dirOrFile(route)
+  .then(data => 
+    Promise.all(routeFunctions.getLinks(data, route, validate)))
+  
 }
 
-mdLinks(path, true);
+module.exports = {mdLinks}
