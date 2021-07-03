@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "chalk": "^4.1.1",
+    "figlet": "^1.5.0",
     "node-dir": "^0.1.17",
     "node-fetch": "^2.6.1",
     "nodejs": "0.0.0",
@@ -31,6 +32,9 @@
   },
   "author": "",
   "license": "ISC",
+  "bin": {
+    "md-links": "./src/cli.js"
+  },
   "bugs": {
     "url": "https://github.com/dalejrg/BOG002-md-links/issues"
   },

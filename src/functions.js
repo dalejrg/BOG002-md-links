@@ -71,17 +71,6 @@ const statusLinks = (object) => {
         })
 }
 
-
-/* Route file absolute */
-/* const routeAbsolute = (data) => {
-    const absolute = path.isAbsolute(data)
-        ? path : path.resolve(data)
-    return absolute;
-};
- */
-
-
-
 module.exports = {
     getLinks,
     dirOrFile

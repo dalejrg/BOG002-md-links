@@ -1,32 +1,54 @@
 #!/usr/bin/env node
 
-const {mdLinks} = require('../index.js');
+const { mdLinks } = require('../index.js');
 const process = require('process');
 const yargs = require('yargs');
-const [, , ...args] = process.argv
+const [, , ...args] = process.argv;
+const chalk = require('chalk');
+const figlet = require('figlet');
 let route = args[0]
 
+figlet.text('MD-LINKS', {
+    font: 'ANSI Shadow',
+    horizontalLayout: 'default',
+    verticalLayout: 'default',
+    width: 90
+}, function (err, data) {
+    if (err) {
+        console.log('Something went wrong...');
+        console.dir(err);
+        return;
+    }
+    console.log(data);
+});
+
+
 const argv = yargs
-.option('validate', {
+    .option('validate', {
         alias: 'v',
-        description: 'validate the links of your path or file',
+        description: 'Validate the links of your path or file',
         type: 'boolean'
     })
     .option('stats', {
         alias: 's',
-        description: 'shows the statistics of the links',
+        description: 'Shows the statistics of the links',
+        type: 'boolean'
+    })
+    .option('resolve', {
+        alias: 'r',
+        description: 'Displays the content of the file',
         type: 'boolean'
     })
     .help()
     .alias('help', 'h')
     .argv
-    
 
-    if (argv.validate && !argv.stats) {
-        mdLinks(route, { validate: true })
+
+if (argv.validate && !argv.stats) {
+    mdLinks(route, { validate: true })
         .then((links) => {
             links.forEach(object => {
-                console.log({
+                console.table({
                     file: object.file,
                     href: object.href,
                     text: object.text,
@@ -35,84 +57,34 @@ const argv = yargs
                 })
             })
         })
-    } else if (argv.stats && !argv.validate) {
-        mdLinks(route)
+} else if (argv.stats && !argv.validate) {
+    mdLinks(route, {stats: true})
         .then((links) => {
-            console.log ({ 
-            total: links.length, unique: [...new Set(links.map((allLinks) => 
-            allLinks.href))].length });
+            console.table({
+                Total: links.length, Unique: [...new Set(links.map((allLinks) =>
+                    allLinks.href))].length
+            });
         })
-    } else if (argv.stats && argv.validate) {
-        mdLinks(route, {validate:true})
+} else if (argv.stats && argv.validate) {
+    mdLinks(route, { validate: true })
         .then(links => {
-            console.log({
-                total: links.length, unique: [...new Set(links.map((allLinks) => 
-                allLinks.href))].length, broken: links.filter((object) => object.code !== '200').length
+            console.table({
+                Total: links.length, Unique: [...new Set(links.map((allLinks) =>
+                    allLinks.href))].length, Broken: links.filter((object) => object.code !== '200').length
             })
         })
-    } else if (!argv.validate && !argv.stats) {
-        console.log('Please enter a valid command')
-        mdLinks(route, { validate: false, stats: false })
-    } else if(route === 'false' || route === 'undefined') {
-        console.log('Please enter a valid route')
-    } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* const yargs = require('yargs')
-const [, , ...args] = process.argv
-const path = args[0] */
-
-/* const argv = yargs
-    .option('validate', {
-        alias: 'v',
-        description: 'validate the links of your path or file',
-        type: 'boolean'
-    })
-    .option('stats', {
-        alias: 's',
-        description: 'shows the statistics of the links',
-        type: 'boolean'
-    })
-    .help()
-    .alias('help', 'h')
-    .argv */
-
-/* if (argv.validate) {
-    console.log('validate')
-    console.log(mdLinks(path))
-    .then((link) => {
-        link.forEach(elem => {
-            console.log({
-                file: elem.file,
-                href: elem.href,
-                text: elem.text,
-                status: elem.status,
-                code: elem.code
+} else if (argv.resolve) {
+    mdLinks(route, {validate: false}).then(array => {
+        array.forEach(object => {
+            console.table({
+                file: object.file,
+                href: object.href,
+                text: object.text
             })
-        }).then(console.log)
+        })
     })
-} */
-
-/* if (statOpt === '--stats' || statOpt === '-s') {
-    options.stats = true
+} else if (!argv.validate && !argv.stats) {
+    mdLinks(route).then(() => {
+        console.log(`${chalk.black.bgMagenta('Please enter a valid command')}`)
+    })
 }
-
-if (path === false || path === undefined) {
-    console.log('Please enter a path or file')
-} */
-
-/* mdLinks(path, options)
-.then(console.log) */
